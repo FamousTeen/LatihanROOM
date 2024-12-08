@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.latihanroom.database.daftarBelanja
 import com.example.latihanroom.database.daftarBelanjaDB
+import com.example.latihanroom.database.historyBelanja
+import com.example.latihanroom.database.historyBelanjaDB
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +21,7 @@ import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     private lateinit var DB: daftarBelanjaDB
+    private lateinit var DB2: historyBelanjaDB
     private lateinit var adapterDaftar : adapterDaftar
     private var arDaftar : MutableList<daftarBelanja> = mutableListOf()
 
@@ -31,8 +34,14 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        DB2 = historyBelanjaDB.getDatabase(this)
         DB = daftarBelanjaDB.getDatabase(this)
         val _fabAdd = findViewById<FloatingActionButton>(R.id.fabAdd)
+        val _fabHistory = findViewById<FloatingActionButton>(R.id.fabHistory)
+        _fabHistory.setOnClickListener {
+            val intent = Intent(this, HistoryBelanja::class.java)
+            startActivity(intent)
+        }
         _fabAdd.setOnClickListener {
             val intent = Intent(this, TambahDaftar::class.java)
             startActivity(intent)
@@ -42,6 +51,24 @@ class MainActivity : AppCompatActivity() {
         adapterDaftar.setOnItemClickCallback(object : adapterDaftar.OnItemClickCallback {
             override fun delData(dtBelanja: daftarBelanja) {
                 CoroutineScope(Dispatchers.IO).async {
+                    DB.fundaftarBelanjaDAO().delete(dtBelanja)
+                    val daftar = DB.fundaftarBelanjaDAO().selectAll()
+                    withContext(Dispatchers.Main) {
+                        adapterDaftar.isiData(daftar)
+                    }
+                }
+            }
+
+            override fun updateComplete(dtBelanja: daftarBelanja) {
+                CoroutineScope(Dispatchers.IO).async {
+                    DB2.funhistoryBelanjaDAO().insert(
+                        historyBelanja(
+                            tanggal = dtBelanja.tanggal,
+                            item = dtBelanja.item,
+                            jumlah = dtBelanja.jumlah,
+                            status = "Selesai"
+                        )
+                    )
                     DB.fundaftarBelanjaDAO().delete(dtBelanja)
                     val daftar = DB.fundaftarBelanjaDAO().selectAll()
                     withContext(Dispatchers.Main) {

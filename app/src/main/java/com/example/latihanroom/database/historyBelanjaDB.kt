@@ -6,25 +6,25 @@ import androidx.room.RoomDatabase
 import java.io.File
 
 
-@Database(entities = [daftarBelanja::class], version = 1)
-abstract class daftarBelanjaDB : RoomDatabase() {
-    abstract fun fundaftarBelanjaDAO(): daftarBelanjaDAO
+@Database(entities = [historyBelanja::class], version = 1)
+abstract class historyBelanjaDB : RoomDatabase() {
+    abstract fun funhistoryBelanjaDAO(): historyBelanjaDAO
 
     companion object {
         @Volatile
-        private var INSTANCE: daftarBelanjaDB? = null
+        private var INSTANCE: historyBelanjaDB? = null
 
         @JvmStatic
-        fun getDatabase(context: Context): daftarBelanjaDB {
+        fun getDatabase(context: Context): historyBelanjaDB {
             if (INSTANCE == null) {
-                synchronized(daftarBelanjaDB::class.java) {
+                synchronized(historyBelanjaDB::class.java) {
                     INSTANCE = Room.databaseBuilder(
                         context.applicationContext,
-                        daftarBelanjaDB::class.java, "daftarBelanja_db"
+                        historyBelanjaDB::class.java, "historyBelanja_db"
                     ).allowMainThreadQueries().build()
                 }
             }
-            return INSTANCE as daftarBelanjaDB
+            return INSTANCE as historyBelanjaDB
         }
 
     }
